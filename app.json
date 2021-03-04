@@ -1,0 +1,25 @@
+{
+  "name": "Nestjs Starter",
+  "description": "A typescript starter for headless api based on Nest.js",
+  "repository": "https://github.com/neuvieme-page/ysl-press-admin-template.git",
+  "success_url": "/",
+  "addons": ["heroku-postgresql:hobby-dev", "bugsnag:tauron2", "adminium:petproject"],
+  "env": {
+    "NODE_ENV": "production",
+    "ENV": "production",
+    "NPM_CONFIG_PRODUCTION": "false",
+    "APP_SECRET": {
+      "description": "This gets generated",
+      "generator": "secret"
+    },
+    "RUN_MIGRATIONS": "true",
+    "TYPEORM_SEEDING_SEEDS": "src/**/*.seed.ts",
+    "TWITTER_API_KEY": "<twitter_api_key>",
+    "TWITTER_API_SECRET": "<twitter_api_secret>",
+    "TWITTER_API_BEARER": "<twitter_api_bearer>",
+    "TWITTER_API_CALLBACK_URL": "<base_url>/auth/twitter/callback"
+  },
+  "scripts": {
+    "postdeploy": "npm run db:seed"
+  }
+}
