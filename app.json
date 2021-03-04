@@ -18,7 +18,8 @@
       "generator": "secret"
     },
     "SUPER_ADMIN_USERNAME": "neuviemepage",
-    "GCP_CREDENTIALS": ""
+    "GCP_CREDENTIALS": "",
+    "GCLOUD_STORAGE_BUCKET": ""
   },
   "scripts": {
     "postdeploy": "npm run db:seed"
