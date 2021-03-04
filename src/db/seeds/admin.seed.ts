@@ -5,6 +5,7 @@ import { encrypt } from '../../auth/helpers/encryption'
 import { UsersService } from '../../user/users.service'
 import { User } from '../../user/user.entity'
 import { Identity } from 'src/identity/identity.entity'
+import { configService } from '../../config/config.service'
 
 export const seedAdmin = async (connection: Connection): Promise<boolean> => {
   const entityManager = new EntityManager(connection)
@@ -25,7 +26,7 @@ export const seedAdmin = async (connection: Connection): Promise<boolean> => {
     email: 'contact@neuviemepage.com',
     firstName: 'admin',
     lastName: 'admin',
-    password: 'password'
+    password: configService.get('SUPER_ADMIN_PASSWORD')
   })
 
   return true
