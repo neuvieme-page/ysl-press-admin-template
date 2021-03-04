@@ -24,7 +24,7 @@ module.exports = {
   ],
   "synchronize": true,
   "autoLoadEntities": true,
-  // "ssl": {
-  //   "rejectUnauthorized": false
-  // }
+  "ssl": {
+    "rejectUnauthorized": false
+  }
 }
