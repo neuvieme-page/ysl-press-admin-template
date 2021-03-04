@@ -2,6 +2,9 @@ import { Connection, EntityManager } from 'typeorm'
 import AdminUser from 'nestjs-admin/dist/src/adminUser/adminUser.entity'
 import { DuplicateUsernameException } from 'nestjs-admin/dist/src/adminUser/exceptions/userAdmin.exception'
 import { encrypt } from '../../auth/helpers/encryption'
+import { UsersService } from '../../user/users.service'
+import { User } from '../../user/user.entity'
+import { Identity } from 'src/identity/identity.entity'
 
 export const seedAdmin = async (connection: Connection): Promise<boolean> => {
   const entityManager = new EntityManager(connection)
@@ -14,6 +17,16 @@ export const seedAdmin = async (connection: Connection): Promise<boolean> => {
   }
 
   entityManager.save(admin)
+
+  const repoU = connection.getRepository(User)
+  const repoId = connection.getRepository(Identity)
+  const service = new UsersService(repoU, repoId, connection)
+  service.create({
+    email: 'contact@neuviemepage.com',
+    firstName: 'admin',
+    lastName: 'admin',
+    password: 'password'
+  })
 
   return true
 }
