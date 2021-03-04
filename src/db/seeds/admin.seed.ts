@@ -13,12 +13,6 @@ export const seedAdmin = async (connection: Connection): Promise<boolean> => {
   admin.username = 'neuviemepage'
   admin.password = await encrypt('password')
 
-  if (await entityManager.findOne(AdminUser, { username: admin.username })) {
-    throw new DuplicateUsernameException(admin.username)
-  }
-
-  entityManager.save(admin)
-
   const repoU = connection.getRepository(User)
   const repoId = connection.getRepository(Identity)
   const service = new UsersService(repoU, repoId, connection)
@@ -28,6 +22,14 @@ export const seedAdmin = async (connection: Connection): Promise<boolean> => {
     lastName: 'admin',
     password: configService.get('SUPER_ADMIN_PASSWORD')
   })
+
+  if (await entityManager.findOne(AdminUser, { username: admin.username })) {
+    throw new DuplicateUsernameException(admin.username)
+  }
+
+  entityManager.save(admin)
+
+
 
   return true
 }
