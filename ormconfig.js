@@ -22,8 +22,8 @@ module.exports = {
   "entities": [
     "src/**/*.entity.ts", AdminUser
   ],
-  "synchronize": true,
-  "autoLoadEntities": true,
+  // "synchronize": true,
+  // "autoLoadEntities": true,
   "ssl": {
     "rejectUnauthorized": false
   }
