@@ -13,11 +13,12 @@ export class VideoService {
       actionLog({ title: 'VideoService', description: "Start generate thumbnail" })
       const fileSource = __dirname + '/../../tmp/' + file.originalname
       const outputPath = `${__dirname}/../../tmp/min-${file.originalname}`
+
       await videoResize({
         inputPath: fileSource,
         outputPath: outputPath,
         format: 'mp4',
-        size: '1280x?'
+        size: '640x?'
       }).catch((error) => {
         errorLog({ title: 'VideoService', description: error })
         reject(error)
