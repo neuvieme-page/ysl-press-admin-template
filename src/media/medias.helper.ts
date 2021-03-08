@@ -11,6 +11,7 @@ import { ImageService } from './image.service'
 import { MediaType } from './media.entity'
 import { VideoService } from './video.service'
 import { successLog } from '../helpers/log'
+import { BadRequestException } from '@nestjs/common'
 
 
 // eslint-disable-next-line
@@ -81,7 +82,9 @@ export class MediasHelper {
   }
 
   async mediaVideoEntity(file: File, { name }): Promise<MediaVideoDTO> {
-    const thumbnailEntity = await this.videoService.generateThumbnail(file)
+    const thumbnailEntity = await this.videoService.generateThumbnail(file).catch(() => {
+      throw new BadRequestException("Une des vidéos téléchargées dépasse la taille limite (60Mo)")
+    })
     successLog({ title: 'MediaHelper', description: `Finish generate thumbnail for video ${file.originalname}` })
     const fileEntity = await this.fileService.create(file)
     const fileSource = __dirname + '/../../tmp/' + file.originalname
