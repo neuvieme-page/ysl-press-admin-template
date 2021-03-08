@@ -80,7 +80,7 @@ export class VersionsService {
     // Create entity and assign children
     const entity = this.repository.create(formatedDTO)
 
-    successLog({ title: 'VersionService', description: `Successfully version created with id "${entity.id}"` })
+    successLog({ title: 'VersionService', description: `Successfully version created` })
     entity.gridMobile = gridMobile
     entity.gridDesktop = gridDesktop
 

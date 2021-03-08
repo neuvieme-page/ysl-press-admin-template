@@ -9,9 +9,6 @@ import { configService } from '../../config/config.service'
 
 export const seedAdmin = async (connection: Connection): Promise<boolean> => {
   const entityManager = new EntityManager(connection)
-  const admin = new AdminUser()
-  admin.username = 'neuviemepage'
-  admin.password = await encrypt('password')
 
   const repoU = connection.getRepository(User)
   const repoId = connection.getRepository(Identity)
@@ -23,13 +20,22 @@ export const seedAdmin = async (connection: Connection): Promise<boolean> => {
     password: configService.get('SUPER_ADMIN_PASSWORD')
   })
 
-  if (await entityManager.findOne(AdminUser, { username: admin.username })) {
-    throw new DuplicateUsernameException(admin.username)
+  try {
+    const admin = new AdminUser()
+    admin.username = 'neuviemepage'
+    admin.password = await encrypt('password')
+  
+    if (await entityManager.findOne(AdminUser, { username: admin.username })) {
+      throw new DuplicateUsernameException(admin.username)
+    }
+  
+    entityManager.save(admin)  
+  } catch(err) {
+    console.error("Cannot save admin user")
   }
 
-  entityManager.save(admin)
 
 
-
+  process.exit()
   return true
 }

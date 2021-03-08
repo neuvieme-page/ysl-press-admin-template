@@ -12,6 +12,22 @@ if (databaseURL) {
   }
 }
 
+console.log(process.env.ENV)
+
+
+const prodConfig = { 
+  "ssl": {
+    "rejectUnauthorized": false
+  }
+}
+
+const devConfig = {
+  "synchronize": true,
+  "autoLoadEntities": true,
+}
+
+const config = process.env.ENV === 'production' ? prodConfig : devConfig
+ 
 module.exports = {
   "type": "postgres",
   "host": DB_HOST || process.env.DB_HOST,
@@ -22,9 +38,5 @@ module.exports = {
   "entities": [
     "src/**/*.entity.ts", AdminUser
   ],
-  // "synchronize": true,
-  // "autoLoadEntities": true,
-  "ssl": {
-    "rejectUnauthorized": false
-  }
+  ...config
 }

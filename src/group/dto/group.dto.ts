@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { ClickItemBehaviour } from '../group.entity'
 
@@ -28,6 +29,9 @@ export class GroupIdDTO {
 }
 
 export class ImportGroupDTO {
+  @Exclude()
+  id: number
+
   @IsNotEmpty()
   @IsOptional({ groups: ['UPDATE'] })
   name: string

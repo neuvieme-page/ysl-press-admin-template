@@ -12,6 +12,9 @@ import { GroupIdDTO } from '../../group/dto/group.dto'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class ImportVersionDTO {
+  @Exclude()
+  id: number
+
   @IsString()
   @IsOptional({ groups: ['UPDATE'] })
   @IsNotEmpty({ groups: ['CREATE'] })
