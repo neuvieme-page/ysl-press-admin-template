@@ -7,7 +7,7 @@ import { File } from 'multer'
 import { FilesService } from '../file/files.service'
 import { File as FileEntity } from '../file/file.entity'
 import validate from '../helpers/validate'
-import { actionLog, errorLog, successLog } from '../helpers/log'
+import { actionLog, successLog } from '../helpers/log'
 
 @Injectable()
 export class GroupsService {
