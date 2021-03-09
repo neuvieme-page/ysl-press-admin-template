@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { Version } from './version.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
@@ -184,6 +184,13 @@ export class VersionsService {
     { archive, pressRelease }: { [key: string]: File[] },
   ) {
     let entity = await this.repository.findOne(id)
+    if(
+      (entity.archive && entity.archive.url === '') 
+      || (entity.pressRelease && entity.pressRelease.url === '')
+    ) {
+      throw new UnauthorizedException('Des fichiers sont encore en cours de traitements, vous ne pouvez pas upload de fichiers pour le moment.')
+    }
+
     entity = await this.updateFile(entity, 'archive', archive && archive[0])
     entity = await this.updateFile(
       entity,
