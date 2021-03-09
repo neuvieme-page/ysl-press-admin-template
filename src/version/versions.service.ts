@@ -188,7 +188,7 @@ export class VersionsService {
       (entity.archive && entity.archive.url === '') 
       || (entity.pressRelease && entity.pressRelease.url === '')
     ) {
-      throw new UnauthorizedException('Des fichiers sont encore en cours de traitements, vous ne pouvez pas upload de fichiers pour le moment.')
+      throw new UnauthorizedException('Des fichiers sont encore en cours de traitement, vous ne pouvez pas upload de fichiers pour le moment.')
     }
 
     entity = await this.updateFile(entity, 'archive', archive && archive[0])
