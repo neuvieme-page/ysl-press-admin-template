@@ -72,14 +72,11 @@ export class VersionsService {
     )
 
     log({ title: 'VersionService', description: `Format dtos for version` })
-
     // Create children
     const gridDesktop = await this.gridService.create(gridDesktopDTO)
     const gridMobile = await this.gridService.create(gridMobileDTO)
-
     // Create entity and assign children
     const entity = this.repository.create(formatedDTO)
-
     successLog({ title: 'VersionService', description: `Successfully version created` })
     entity.gridMobile = gridMobile
     entity.gridDesktop = gridDesktop

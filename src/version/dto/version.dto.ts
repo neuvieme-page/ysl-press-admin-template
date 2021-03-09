@@ -15,6 +15,12 @@ export class ImportVersionDTO {
   @Exclude()
   id: number
 
+  @Exclude()
+  pressRelease: any
+
+  @Exclude()
+  archive: any
+
   @IsString()
   @IsOptional({ groups: ['UPDATE'] })
   @IsNotEmpty({ groups: ['CREATE'] })
