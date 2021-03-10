@@ -11,10 +11,8 @@ import {
   Delete,
   InternalServerErrorException,
   UseInterceptors,
-  UploadedFile,
   UploadedFiles,
   BadRequestException
-  
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {} from '@nestjs/common'
@@ -24,8 +22,8 @@ import { VersionsService } from './versions.service'
 import { ImportVersionDTO, ExportVersionDTO } from './dto/version.dto'
 import { HttpSuccessResponse } from '../helpers/success.http'
 import { ValidationPipe } from '../helpers/validation.pipe'
-import { FileInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express'
-import { File, diskStorage } from 'multer'
+import { FileFieldsInterceptor } from '@nestjs/platform-express'
+import { diskStorage } from 'multer'
 import { actionLog } from '../helpers/log'
 
 const fileInterceptor = {
@@ -36,7 +34,6 @@ const fileInterceptor = {
     },
   }),
 }
-
 
 @ApiBearerAuth()
 @ApiTags('versions')
@@ -161,6 +158,4 @@ export class VersionController {
       return new HttpSuccessResponse('Record successfully deleted')
     throw new InternalServerErrorException(id, 'Cannot delete this post')
   }
-
-
 }

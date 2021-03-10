@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, MiddlewareConsumer } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MulterModule } from '@nestjs/platform-express'
 import { AuthModule } from '../auth/auth.module'
@@ -16,6 +16,7 @@ import { GridsModule } from '../grid/grid.module'
 import { MediasModule } from '../media/medias.module'
 import { FilesModule } from '../file/file.module'
 import { OptionsModule } from '../options/options.module'
+import { DelayerMiddleware } from './delayer.middleware'
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -43,4 +44,10 @@ import { OptionsModule } from '../options/options.module'
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(DelayerMiddleware)
+      .forRoutes('*');
+  }
+}

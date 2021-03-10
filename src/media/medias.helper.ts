@@ -91,9 +91,14 @@ export class MediasHelper {
     const fileMetaData = await ffprobe(fileSource, {
       path: ffprobeStatic.path,
     })
-    const ratio = fileMetaData.streams[0]
-      ? fileMetaData.streams[0].width / fileMetaData.streams[0].height
-      : 1
+
+    let ratio = 1;
+    if (fileMetaData.streams) {
+      const stream = fileMetaData.streams.find(stream => stream.codec_type === 'video')
+      if (stream) {
+        ratio = stream.width / stream.height
+      }
+    }
 
     return {
       name,
