@@ -46,19 +46,27 @@ export class Media {
 
   @OneToOne(() => File, { eager: true })
   @JoinColumn()
-  origin: File
+  originFile: File
 
   @Column({ nullable: true })
   @Exclude()
-  originId: number
+  originFileId: number
 
   @OneToOne(() => File, { eager: true })
   @JoinColumn()
-  thumbnail: File
+  gridFile: File
 
   @Column({ nullable: true })
   @Exclude()
-  thumbnailId: number
+  gridFileId: number
+
+  @OneToOne(() => File, { eager: true })
+  @JoinColumn()
+  popinFile: File
+
+  @Column({ nullable: true })
+  @Exclude()
+  popinFileId: number
 
   @ManyToMany(() => Group, { cascade: true, eager: true })
   @JoinTable({

@@ -3,6 +3,7 @@ import {
   ImportMediaDTO,
   MediaYoutubeDTO,
   MediaVideoDTO,
+  MediaFilesDTO,
 } from './dto/media.dto'
 import { Injectable, UnsupportedMediaTypeException } from '@nestjs/common'
 import { FilesService } from '../file/files.service'
@@ -29,21 +30,30 @@ export class MediasHelper {
     private readonly videoService: VideoService
   ) {}
 
-  async handleMedia(file: File, params: ImportMediaDTO) {
+  async handleMedia({originFile, popinFile = null, gridFile = null}: MediaFilesDTO, params: ImportMediaDTO) {
+    originFile = originFile && originFile[0]
+    popinFile = popinFile && popinFile[0]
+    gridFile = gridFile && gridFile[0]
+
     const fileType = params.type
       ? params.type
-      : file.mimetype.match(/[a-z]*(?=[/])/g)[0]
+      : originFile.mimetype.match(/[a-z]*(?=[/])/g)[0]
+
 
     switch (fileType) {
       case 'image':
-        return await this.mediaImageEntity(file, params)
+        return await this.mediaImageEntity({ originFile, popinFile, gridFile }, params)
       case 'video':
-        return await this.mediaVideoEntity(file, params)
+        return await this.mediaVideoEntity({ originFile, popinFile, gridFile }, params)
       case 'youtube':
-        return await this.mediaYoutubeEntity(file, params)
+        return await this.mediaYoutubeEntity(originFile, params)
       default:
         throw new UnsupportedMediaTypeException()
     }
+  }
+
+  async handleFile(file: File) {
+    return await this.fileService.create(file)
   }
 
   async mediaYoutubeEntity(
@@ -55,38 +65,32 @@ export class MediasHelper {
     return {
       name,
       url,
-      origin: fileEntity,
+      originFile: fileEntity,
       type: MediaType.Youtube,
       width: 3,
       height: 6,
     }
   }
 
-  async mediaImageEntity(file: File, { name }): Promise<MediaImageDTO> {
-    const thumbnailEntity = await this.imageService.generateThumbnail(file)
-    successLog({ title: 'MediaHelper', description: `Finish generate thumbnail for image ${file.originalname}` })
-    const fileEntity = await this.fileService.create(file)
-
-    const fileSource = __dirname + '/../../tmp/' + file.originalname
-    const dimensions = sizeOf(fileSource)
-    const ratio = dimensions.width / dimensions.height
-
-    return {
-      name,
-      origin: fileEntity,
-      type: MediaType.Image,
-      thumbnail: thumbnailEntity,
-      width: 1,
-      height: ratio > 1 ? 2 : 5,
+  async getRatio(file) {
+    console.log(file)
+    const type = file.mimetype.match(/[a-z]*(?=[/])/g)[0];
+    console.log('Check type is correct', type)
+    if (type === 'image') {
+      return this.getImageRatio(file)
+    }
+    if (type === 'video') {
+      return await this.getVideoRatio(file)
     }
   }
 
-  async mediaVideoEntity(file: File, { name }): Promise<MediaVideoDTO> {
-    const thumbnailEntity = await this.videoService.generateThumbnail(file).catch(() => {
-      throw new BadRequestException("Une des vidéos téléchargées dépasse la taille limite (60Mo)")
-    })
-    successLog({ title: 'MediaHelper', description: `Finish generate thumbnail for video ${file.originalname}` })
-    const fileEntity = await this.fileService.create(file)
+  getImageRatio(file: File): number {
+    const fileSource = __dirname + '/../../tmp/' + file.originalname
+    const dimensions = sizeOf(fileSource)
+    return dimensions.width / dimensions.height
+  }
+
+  async getVideoRatio(file: File): Promise<number> {
     const fileSource = __dirname + '/../../tmp/' + file.originalname
     const fileMetaData = await ffprobe(fileSource, {
       path: ffprobeStatic.path,
@@ -100,11 +104,62 @@ export class MediasHelper {
       }
     }
 
+    return ratio
+  }
+
+  async mediaImageEntity({ originFile, gridFile, popinFile }: MediaFilesDTO, { name }): Promise<MediaImageDTO> {
+    // If handle thumbnail is needed
+    let thumbnailEntity = null;
+    if (!gridFile || !popinFile) {
+      successLog({ title: 'MediaHelper', description: `Finish generate thumbnail for image ${originFile.originalname}` })
+      thumbnailEntity = await this.imageService.generateThumbnail(originFile)
+    }
+
+    successLog({ title: 'MediaHelper', description: `Finish generate gridFile entity` })
+    const gridFileEntity = !gridFile && thumbnailEntity ? thumbnailEntity : await this.handleFile(gridFile)
+    
+    successLog({ title: 'MediaHelper', description: `Finish generate popinFile entity` })
+    const popinFileEntity = !popinFile && thumbnailEntity ? thumbnailEntity : await this.handleFile(popinFile)
+
+    const fileEntity = await this.fileService.create(originFile)
+    const ratio = await this.getRatio(gridFile || originFile)
+
     return {
       name,
-      origin: fileEntity,
+      originFile: fileEntity,
+      gridFile: gridFileEntity,
+      popinFile: popinFileEntity,
+      type: MediaType.Image,
+      width: 1,
+      height: ratio > 1 ? 2 : 5,
+    }
+  }
+
+  async mediaVideoEntity({ originFile, gridFile, popinFile }: MediaFilesDTO, { name }): Promise<MediaVideoDTO> {
+    // If handle thumbnail is needed
+    let thumbnailEntity = null;
+    if (!gridFile || !popinFile) {
+      thumbnailEntity = await this.videoService.generateThumbnail(originFile).catch(() => {
+        throw new BadRequestException("Une des vidéos téléchargées dépasse la taille limite (60Mo)")
+      })
+      successLog({ title: 'MediaHelper', description: `Finish generate thumbnail for video ${originFile.originalname}` })
+    }
+
+    successLog({ title: 'MediaHelper', description: `Finish generate gridFile entity` })
+    const gridFileEntity = !gridFile && thumbnailEntity ? thumbnailEntity : this.handleFile(gridFile)
+    
+    successLog({ title: 'MediaHelper', description: `Finish generate popinFile entity` })
+    const popinFileEntity = !popinFile && thumbnailEntity ? thumbnailEntity : this.handleFile(popinFile)
+
+    const fileEntity = await this.fileService.create(originFile)
+    const ratio = await this.getRatio(gridFile || originFile)
+
+    return {
+      name,
+      originFile: fileEntity,
+      gridFile: gridFileEntity,
+      popinFile: popinFileEntity,
       type: MediaType.Video,
-      thumbnail: thumbnailEntity,
       height: ratio > 1 ? 2 : 5,
       width: 1,
     }
