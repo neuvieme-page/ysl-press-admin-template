@@ -73,9 +73,7 @@ export class MediasHelper {
   }
 
   async getRatio(file) {
-    console.log(file)
     const type = file.mimetype.match(/[a-z]*(?=[/])/g)[0];
-    console.log('Check type is correct', type)
     if (type === 'image') {
       return this.getImageRatio(file)
     }

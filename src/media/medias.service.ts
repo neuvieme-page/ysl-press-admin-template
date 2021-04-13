@@ -86,8 +86,6 @@ export class MediasService {
     delete params.groups
     const mediaFormatedDTO = await this.helper.handleMedia({originFile, popinFile, gridFile}, params)
 
-    console.log(mediaFormatedDTO)
-
     const entity = this.repository.create(mediaFormatedDTO)
     entity.groups = groups
 
