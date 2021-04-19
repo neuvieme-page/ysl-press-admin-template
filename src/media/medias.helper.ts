@@ -115,7 +115,6 @@ export class MediasHelper {
 
     successLog({ title: 'MediaHelper', description: `Finish generate gridFile entity` })
     const gridFileEntity = !gridFile && thumbnailEntity ? thumbnailEntity : await this.handleFile(gridFile)
-    
     successLog({ title: 'MediaHelper', description: `Finish generate popinFile entity` })
     const popinFileEntity = !popinFile && thumbnailEntity ? thumbnailEntity : await this.handleFile(popinFile)
 
@@ -140,18 +139,23 @@ export class MediasHelper {
       thumbnailEntity = await this.videoService.generateThumbnail(originFile).catch(() => {
         throw new BadRequestException("Une des vidéos téléchargées dépasse la taille limite (60Mo)")
       })
+      console.log(1)
       successLog({ title: 'MediaHelper', description: `Finish generate thumbnail for video ${originFile.originalname}` })
     }
 
+    console.log(2)
     successLog({ title: 'MediaHelper', description: `Finish generate gridFile entity` })
-    const gridFileEntity = !gridFile && thumbnailEntity ? thumbnailEntity : this.handleFile(gridFile)
+    const gridFileEntity = !gridFile && thumbnailEntity ? thumbnailEntity : await this.handleFile(gridFile)
     
+    console.log(3, gridFileEntity)
     successLog({ title: 'MediaHelper', description: `Finish generate popinFile entity` })
-    const popinFileEntity = !popinFile && thumbnailEntity ? thumbnailEntity : this.handleFile(popinFile)
+    const popinFileEntity = !popinFile && thumbnailEntity ? thumbnailEntity : await this.handleFile(popinFile)
 
+    console.log(4, popinFileEntity)
     const fileEntity = await this.fileService.create(originFile)
     const ratio = await this.getRatio(gridFile || originFile)
 
+    console.log(5, fileEntity)
     return {
       name,
       originFile: fileEntity,
