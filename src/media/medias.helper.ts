@@ -149,7 +149,7 @@ export class MediasHelper {
     let thumbnailEntity = null;
     if (!gridFile || !popinFile) {
       thumbnailEntity = await this.videoService.generateThumbnail(originFile).catch(() => {
-        throw new BadRequestException("Une des vidéos téléchargées dépasse la taille limite (60Mo)")
+        throw new BadRequestException("Une des vidéos téléchargées dépasse la taille limite (65Mo)")
       })
       successLog({ title: 'MediaHelper', description: `Finish generate thumbnail for video ${originFile.originalname}` })
     }
