@@ -10,10 +10,10 @@ import {
   Patch,
   Delete,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { FileInterceptor } from '@nestjs/platform-express'
+import { FileFieldsInterceptor } from '@nestjs/platform-express'
 import { AuthJwtGuard } from '../auth/jwt/jwt.guard'
 import { Media } from './media.entity'
 import { MediasService } from './medias.service'
@@ -22,7 +22,7 @@ import {
   ExportBaseMediaDTO,
   PatchMediaDTO,
 } from './dto/media.dto'
-import { File, diskStorage } from 'multer'
+import { diskStorage } from 'multer'
 import { actionLog, errorLog } from '../helpers/log'
 
 const fileInterceptor = {
@@ -90,16 +90,18 @@ export class MediaController {
 
   @UseGuards(AuthJwtGuard)
   @Post('medias/upload')
-  @UseInterceptors(FileInterceptor('file', fileInterceptor))
+  @UseInterceptors(
+    FileFieldsInterceptor([{name: 'originFile', maxCount: 1}, { name: 'gridFile', maxCount: 1}, { name: 'popinFile', maxCount: 1}], fileInterceptor)
+  )
   @ApiHeader({ name: 'Bearer', description: 'Token for authentication' })
   @ApiResponse({ type: [Media], status: 200, description: 'The records list' })
   @ApiResponse({ type: [Media], status: 400, description: 'Bad request' })
   async upload(
     @Body() body: ImportMediaDTO,
-    @UploadedFile() file: File,
+    @UploadedFiles() files,
   ): Promise<ExportBaseMediaDTO> {
     actionLog({ title: 'MediasController', description: "Create media", indentation: 0 })
-    return await this.mediasService.create(file, body)
+    return await this.mediasService.create(files, body)
   }
 
   @UseGuards(AuthJwtGuard)

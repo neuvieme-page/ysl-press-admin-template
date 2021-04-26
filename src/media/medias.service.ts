@@ -11,11 +11,11 @@ import {
   ExportBaseMediaDTO,
   ImportMediaDTO,
   PatchMediaDTO,
+  MediaFilesDTO 
 } from './dto/media.dto'
 import { plainToClass } from 'class-transformer'
 import { FilesService } from '../file/files.service'
 import { MediasHelper } from './medias.helper'
-import { File } from 'multer'
 import { GroupsService } from '../group/group.service'
 import validate from '../helpers/validate'
 import { GridItem } from '../grid/grid_item.entity'
@@ -49,22 +49,24 @@ export class MediasService {
     const item = await this.gridItemsRepository.findOne({ mediaId: id })
     if (item) throw new UnauthorizedException(`can't delete media with id '${id}', this media is used in item '${item.id}'`)
 
-    const originId = entity.origin.id
-    const thumbnailId = entity.thumbnail ? entity.thumbnail.id : null
+    const originId = entity.originFile.id
+    const gridId = entity.gridFile ? entity.gridFile.id : null
+    const popinId = entity.popinFile ? entity.popinFile.id : null
 
     await this.repository.delete(entity.id)
     successLog({ title: "MediasService", description: `Successfully deleted entity with id "${entity.id}"` })
 
-    if (thumbnailId) await this.fileService.delete(thumbnailId)
+    if (gridId) await this.fileService.delete(gridId)
+    if (popinId && popinId !== gridId) await this.fileService.delete(popinId)
     if (originId) return await this.fileService.delete(originId)
     return false
   }
 
   async create(
-    file: File,
+    {originFile, popinFile = null, gridFile = null}: MediaFilesDTO,
     params: ImportMediaDTO,
   ): Promise<ExportBaseMediaDTO> {
-    if (!file) throw new BadRequestException('File is required')
+    if (!originFile) throw new BadRequestException('File is required')
     if (!params) throw new BadRequestException('Params is required')
 
     // "3" => ["3"] // ["3", "4"] => ["3", "4"] // undefined => []
@@ -82,7 +84,7 @@ export class MediasService {
     )
 
     delete params.groups
-    const mediaFormatedDTO = await this.helper.handleMedia(file, params)
+    const mediaFormatedDTO = await this.helper.handleMedia({originFile, popinFile, gridFile}, params)
 
     const entity = this.repository.create(mediaFormatedDTO)
     entity.groups = groups

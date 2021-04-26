@@ -7,7 +7,7 @@ import {
   ValidateNested,
   IsNotEmpty,
 } from 'class-validator'
-import { File } from '../../file/file.entity'
+import { File } from 'multer'
 import { Exclude, Type } from 'class-transformer'
 import { GridUpdateDTO, ExportGridDTO } from '../../grid/dto/grid.dto'
 import { ImportJoinGroupDTO, GroupDTO } from '../../group/dto/group.dto'
@@ -50,7 +50,7 @@ export class BaseMediaDTO {
   name: string
 
   @IsNotEmpty()
-  origin: File
+  originFile: File
 
   @IsNotEmpty()
   type: MediaType
@@ -64,7 +64,10 @@ export class BaseMediaDTO {
 
 export class MediaImageDTO extends BaseMediaDTO {
   @IsNotEmpty()
-  thumbnail: File
+  gridFile: File
+
+  @IsNotEmpty()
+  popinFile: File
 }
 
 export class MediaYoutubeDTO extends BaseMediaDTO {
@@ -74,7 +77,10 @@ export class MediaYoutubeDTO extends BaseMediaDTO {
 
 export class MediaVideoDTO extends BaseMediaDTO {
   @IsNotEmpty()
-  thumbnail: File
+  gridFile: File
+
+  @IsNotEmpty()
+  popinFile: File
 }
 
 export class ExportBaseMediaDTO {
@@ -88,7 +94,12 @@ export class ExportBaseMediaDTO {
   type: MediaType
 
   @IsNotEmpty()
-  origin: File
+  originFile: File
+
+  @IsNotEmpty()
+  gridFile: File
+
+  
 
   @IsNotEmpty()
   height: number
@@ -114,4 +125,11 @@ export class ExportMediaDTO {
 
   @Exclude()
   gridDesktopId: number
+}
+
+
+export interface MediaFilesDTO {
+  originFile: File,
+  gridFile: File | null,
+  popinFile: File | null
 }
